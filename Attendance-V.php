@@ -67,81 +67,96 @@ require_once 'config.php';
 
                 </div>
                 <!-- /.container-fluid -->
-                <div class="container-fluid">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <select class="form-control" id="attendance-class">
-                                <option>Select a class</option>
-                                <?php
-                                // Database connection parameters
-                                require_once 'Config.php';
+               
 
-                                // Fetch classes from the database
-                                $sql = "SELECT * FROM classes";
-                                while($row = mysqli_fetch_assoc($result)){
-                                    
+            <div class="container-fluid">
+            
+            <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <form method="post" action="">
+                        <select class="form-control" id="attendance-class" name="attendance-class">
+                            <option>Select a class</option>
+                            <?php
+                            // Fetch classes from the database
+                            $sql = "SELECT * FROM Classes";
+                            $result = $conn->query($sql);
 
-                                    <td><?php echo $row["CName"]; </td>
-                                    <td><?php echo $row["CName"]; </td>
-                                    <td><?php echo $row["CName"]; </td>
-                                    <td><?php echo $row["CName"]; </td>
-                                    <td><?php echo $row["CName"]; </td>
+                            // Check if there are any results
+                            if ($result->num_rows > 0) {
+                                // Output options for the dropdown menu
+                                while ($row = $result->fetch_assoc()) {
+                                    echo "<option value='" . $row["ID"] . "'>" . $row["CName"] . "</option>";
                                 }
-
-
-
-    
-                                // $result = $conn->query($sql);
-
-                                // // Check if there are any results
-                                // if ($result->num_rows > 0) {
-                                //     // Output options for the dropdown menu
-                                //     while ($row = $result->fetch_assoc()) {
-                                //         echo "<option value='" . $row["ID"] . "'>" . $row["CName"] . "</option>";
-                                //     }
-                                // } else {
-                                //     echo "<option>No classes found</option>";
-                                // }
-                                // $conn->close();
-                                // ?>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="form-group">
-                            <input type="date" class="form-control" id="attendance-date" placeholder="Select date">
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <button type="button" class="btn btn-info"">Select</button>
-                    </div>
-                </div>
-
-            </div>
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 text-center font-weight-bold text-primary" style="font-size:24px;">Attendance</h6>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-bordered" id="attendance-table" width="100%" cellspacing="0">
-                            <thead>
-                                <tr>
-                                    <th>First</th>
-                                    <th>Last</th>
-                                    <th>Age</th>
-                                    <th>Class</th>
-                                    <th>Attendance</th>
-                                </tr>
-                            </thead>
-                            <tbody id="attendance-body">
-                                <!-- Attendance records will be appended here -->
-                            </tbody>
-                        </table>
-                    </div>
+                            } else {
+                                echo "<option>No classes found</option>";
+                            }
+                            ?>
+                        </select>
                 </div>
             </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <input type="date" class="form-control" id="attendance-date" name="attendance-date" placeholder="Select date">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-info" name="select-attendance">Select</button>
+            </div>
+            </form>
+        </div>
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 text-center font-weight-bold text-primary" style="font-size:24px;">Attendance</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="attendance-table" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>First</th>
+                                <th>Last</th>
+                                <th>Age</th>
+                                <th>Class</th>
+                                <th>Attendance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendance-body">
+                            <?php 
+                            if (isset($_POST['select-attendance'])) {
+                                // Retrieve selected class and date from the form
+                                $classSelected = $_POST['attendance-class'];
+                                $dateSelected = $_POST['attendance-date'];
+                                
+                                // Prepare and execute SQL query to fetch attendance records
+                                $sql = "SELECT * FROM Attendance WHERE ClassID = '$classSelected' AND Date = '$dateSelected'";
+                                $result = $conn->query($sql);
+
+                                // Check if any attendance records were found
+                                if ($result->num_rows > 0) {
+                                    // Output attendance records
+                                    while ($row = $result->fetch_assoc()) {
+                                        // Display attendance information here
+                                        echo "<tr>";
+                                        echo "<td>".$row["First"]."</td>";
+                                        echo "<td>".$row["Last"]."</td>";
+                                        echo "<td>".$row["Age"]."</td>";
+                                        echo "<td>".$row["Class"]."</td>";
+                                        echo "<td>".$row["Status"]."</td>";
+                                        echo "</tr>";
+                                    }
+                                } else {
+                                    echo "<tr><td colspan='5'>No attendance records found for the selected class and date.</td></tr>";
+                                }
+                            }
+                            ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
 
                
                 
