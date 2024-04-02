@@ -86,7 +86,7 @@ require_once 'config.php';
                             if ($result->num_rows > 0) {
                                 // Output options for the dropdown menu
                                 while ($row = $result->fetch_assoc()) {
-                                    echo "<option value='" . $row["ID"] . "'>" . $row["CName"] . "</option>";
+                                    echo "<option value='" . $row["id"] . "'>" . $row["class_name"] . "</option>";
                                 }
                             } else {
                                 echo "<option>No classes found</option>";
@@ -130,7 +130,7 @@ require_once 'config.php';
                                 $dateSelected = $_POST['attendance-date'];
                                 
                                 // Prepare and execute SQL query to fetch attendance records
-                                $sql = "SELECT * FROM Attendance WHERE ClassID = '$classSelected' AND Date = '$dateSelected'";
+                                $sql = "SELECT * FROM students WHERE class_id = '$classSelected'";
                                 $result = $conn->query($sql);
 
                                 // Check if any attendance records were found
@@ -139,11 +139,11 @@ require_once 'config.php';
                                     while ($row = $result->fetch_assoc()) {
                                         // Display attendance information here
                                         echo "<tr>";
-                                        echo "<td>".$row["First"]."</td>";
-                                        echo "<td>".$row["Last"]."</td>";
-                                        echo "<td>".$row["Age"]."</td>";
-                                        echo "<td>".$row["Class"]."</td>";
-                                        echo "<td>".$row["Status"]."</td>";
+                                        echo "<td>".$row["id"]."</td>";
+                                        echo "<td>".$row["full_name"]."</td>";
+                                        echo "<td>".$row["age"]."</td>";
+                                        echo "<td>".$row["mobile"]."</td>";
+                                        echo "<td>".$row["class_id"]."</td>";
                                         echo "</tr>";
                                     }
                                 } else {

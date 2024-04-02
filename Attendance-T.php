@@ -23,6 +23,14 @@ require_once 'config.php';
 
     <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
+    <style>
+        .my_input{
+            border: none;
+            outline: none;
+            width: fit-content;
+            pointer-events: none;
+        }
+    </style>
 
 </head>
 
@@ -63,7 +71,7 @@ require_once 'config.php';
                 <div class="container-fluid">
 
                     <!-- Page Heading -->
-                    <h1 class="h3 mb-4 text-gray-800">Blank Page</h1>
+                    <h1 class="h3 mb-4 text-gray-800"> Take Attendance </h1>
 
                 </div>
                 <!-- /.container-fluid -->
@@ -71,22 +79,36 @@ require_once 'config.php';
 
                 <div class="container-fluid">
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-10">
                         <div class="form-group">
                             <form method="post" action="">
                                 <select class="form-control" id="attendance-class" name="attendance-class">
                                     <option>Select a class</option>
-                                    <!-- PHP code removed -->
+                                    <?php
+                                        // Fetch classes from the database
+                                        $sql = "SELECT * FROM Classes";
+                                        $result = $conn->query($sql);
+
+                                        // Check if there are any results
+                                        if ($result->num_rows > 0) {
+                                            // Output options for the dropdown menu
+                                            while ($row = $result->fetch_assoc()) {
+                                                echo "<option value='" . $row["id"] . "'>" . $row["class_name"] . "</option>";
+                                            }
+                                        } else {
+                                            echo "<option>No classes found</option>";
+                                        }
+                                    ?>  
                                 </select>
                         </div>
                     </div>
-                    <div class="col-md-2">
+                    <!-- <div class="col-md-2">
                         <div class="form-group">
                             <input type="date" class="form-control" id="attendance-date" name="attendance-date" placeholder="Select date">
                         </div>
-                    </div>
+                    </div> -->
                     <div class="col-md-2">
-                        <button type="submit" class="btn btn-info" name="select-attendance">Select</button>
+                        <button type="submit" class="btn btn-info" name="select-attendance">Search</button>
                     </div>
                     </form>
                 </div>
@@ -100,29 +122,60 @@ require_once 'config.php';
                             <table class="table table-bordered" id="attendance-table" width="100%" cellspacing="0">
                                 <thead>
                                     <tr>
-                                        <th>First</th>
-                                        <th>Last</th>
-                                        <th>Age</th>
+                                        <th>ID</th>
+                                        <th>Full Name</th>
+                                        <!-- <th>Age</th> -->
                                         <th>Class</th>
                                         <th>Attendance</th>
                                     </tr>
                                 </thead>
                                 <tbody id="attendance-body">
                                     <!-- PHP code removed -->
-                                    <tr>
-                                        <td>John</td>
-                                        <td>Doe</td>
-                                        <td>25</td>
-                                        <td>Math</td>
-                                        <td><input type="checkbox" name="attendance[]" value="John_Doe"></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Jane</td>
-                                        <td>Smith</td>
-                                        <td>23</td>
-                                        <td>English</td>
-                                        <td><input type="checkbox" name="attendance[]" value="Jane_Smith"></td>
-                                    </tr>
+
+                        <?php 
+                            if (isset($_POST['select-attendance'])) {
+                                // Retrieve selected class and date from the form
+                                $classSelected = $_POST['attendance-class'];
+                                // $dateSelected = $_POST['attendance-date'];
+                                
+                                // Prepare and execute SQL query to fetch attendance records
+                                $sql = "SELECT s.*, c.class_name FROM students s LEFT JOIN classes c ON s.class_id = c.id WHERE class_id = '$classSelected'";
+                                $result = $conn->query($sql);
+
+                                // Check if any attendance records were found
+                                if ($result->num_rows > 0) {
+                                    // Output attendance records
+                                    while ($row = $result->fetch_assoc()) {
+                                        ?>
+                                        <tr>
+                                            <td> <input class="my_input" type="text" name="student_id" value="<?php echo $row['id'];?> "> </td>
+                                            <td> <input class="my_input" type="text" name="full_name" value="<?php echo $row['full_name'];?> "> </td>
+                                            <td> <?php echo $row['class_name'];?> <input class="my_input" type="hidden" name="class_id" value="<?php echo $row['class_id'];?> ">  </td>
+                                            <td>
+                                                <button class='btn btn-success'> P </button>
+                                                <button class='btn btn-danger'> A </button>
+                                            </td>
+                                        </tr>
+
+                                        <!-- echo "<tr>";
+                                        echo "<td>".$row["id"]."</td>";
+                                        echo "<td>".$row["full_name"]."</td>";
+                                        echo "<td>".$row["age"]."</td>";
+                                        echo "<td>".$row["mobile"]."</td>";
+                                        echo "<td>".$row["class_name"]."</td>";
+                                        echo "</tr>"; -->
+                                    <!-- } -->
+                                <!-- } else {
+                                    echo "<tr><td colspan='5'>No attendance records found for the selected class and date.</td></tr>";
+                                } -->
+                            <!-- }
+                            ?> -->
+
+                            <?php }
+                                } 
+                            }
+                            
+                        ?>
 
                                 </tbody>
                             </table>
