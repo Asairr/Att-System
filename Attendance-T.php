@@ -140,59 +140,42 @@ require_once 'config.php';
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
+               
                             <table class="table table-bordered" id="attendance-table" width="100%" cellspacing="0">
                                 <thead>
                                     <tr>
                                         <th>ID</th>
                                         <th>Full Name</th>
-                                        <!-- <th>Age</th> -->
                                         <th>Class</th>
                                         <th>Attendance</th>
                                     </tr>
                                 </thead>
                                 <tbody id="attendance-body">
-                                    <!-- PHP code removed -->
 
+                                    <form method="post" id="attendanceForm">
+                                        <button type='submit' name="save"> Save </button>
                         <?php 
                             if (isset($_POST['select-attendance'])) {
-                                // Retrieve selected class and date from the form
                                 $classSelected = $_POST['attendance-class'];
-                                // $dateSelected = $_POST['attendance-date'];
-                                
-                                // Prepare and execute SQL query to fetch attendance records
                                 $sql = "SELECT s.*, c.class_name FROM students s LEFT JOIN classes c ON s.class_id = c.id WHERE class_id = '$classSelected'";
                                 $result = $conn->query($sql);
 
-                                // Check if any attendance records were found
                                 if ($result->num_rows > 0) {
-                                    // Output attendance records
                                     while ($row = $result->fetch_assoc()) {
                                         ?>
-                                        <tr>
-                                            <td> <input class="my_input" type="text" name="student_id" value="<?php echo $row['id'];?> "> </td>
-                                            <td> <input class="my_input" type="text" name="full_name" value="<?php echo $row['full_name'];?> "> </td>
-                                            <td> <?php echo $row['class_name'];?> <input class="my_input" type="hidden" name="class_id" value="<?php echo $row['class_id'];?> ">  </td>
-                                            <td>
-                                                <input type="button" value="1" name="P" id="presentButton">
-                                                <input type="button" value="0" name="A" id="absentButton">
-                                                <!-- <button class='btn btn-success'> P </button>
-                                                <button class='btn btn-danger'> A </button> -->
-                                            </td>
-                                        </tr>
+                                           
 
-                                        <!-- echo "<tr>";
-                                        echo "<td>".$row["id"]."</td>";
-                                        echo "<td>".$row["full_name"]."</td>";
-                                        echo "<td>".$row["age"]."</td>";
-                                        echo "<td>".$row["mobile"]."</td>";
-                                        echo "<td>".$row["class_name"]."</td>";
-                                        echo "</tr>"; -->
-                                    <!-- } -->
-                                <!-- } else {
-                                    echo "<tr><td colspan='5'>No attendance records found for the selected class and date.</td></tr>";
-                                } -->
-                            <!-- }
-                            ?> -->
+                                            <tr>
+                                                <td> <input class="my_input" type="text" name="student_id" value="<?php echo $row['id'];?> "> </td>
+                                                <td> <input class="my_input" type="text" name="full_name" value="<?php echo $row['full_name'];?> "> </td>
+                                                <td> <?php echo $row['class_name'];?> <input class="my_input" type="hidden" name="class_id" value="<?php echo $row['class_id'];?> ">  </td>
+                                                <td style='width: 30%'>
+                                                    <input type="radio" name="status" value="1" id="present"> Present
+                                                    <input type="radio" name="status" value="0" id="absent"> Absent
+                                                    <!-- <input type="checkbox" name="attendance"> -->
+                                                </td>
+                                            </tr>
+                                        </form>
 
                             <?php }
                                 } 
@@ -202,10 +185,69 @@ require_once 'config.php';
 
                                 </tbody>
                             </table>
+                              
                         </div>
                     </div>
                 </div>
             </div>
+
+
+            <?php
+                if(isset($_POST['save'])){
+                    $student_id = $_POST["student_id"];
+                    $class_id = $_POST["class_id"];
+                    $status = $_POST["status"];
+                    for ($i = 0; $i <= strlen($status) ; $i++) {
+                        $sql = "INSERT INTO attendance (student_id, class_id, status) VALUES ($student_id, $class_id, $status)";
+                        $res = mysqli_query($conn, $sql);
+                        if($res){
+                            echo "yessssssssssssss";
+                        } else {
+                            echo "NPOOOO";
+                        }
+                    }
+                }
+
+
+                // if (isset($_POST['save'])) {
+                //     // Get attendance data as an array (assuming checkboxes are named like 'attendance[studentId]')
+                //     $studentAttendance = $_POST['attendance']; 
+                  
+                //     $class_id = $_POST['class_id'];
+                  
+                //     foreach ($studentAttendance as $studentId => $status) {
+                //       $sql = "INSERT INTO attendance (student_id, class_id, status) VALUES ($studentId, $class_id, $status)";
+                //       $res = mysqli_query($conn, $sql);
+                  
+                //       if ($res) {
+                //         echo "Attendance recorded successfully for student " . $studentId . "!";
+                //       } else {
+                //         echo "Error saving attendance for student " . $studentId . ": " . mysqli_error($conn);
+                //       }
+                //     }
+                //   }
+
+                  
+                  
+                    // $stmt = mysqli_prepare($conn, $sql);
+
+                    // // Bind parameters with data types (status is an integer)
+                    // $types = "iii"; // "i" for integer for all three variables
+                    // mysqli_stmt_bind_param($stmt, $types, $student_id, $class_id, $status);
+
+                    // if (mysqli_stmt_execute($stmt)) {
+                    //     echo "Attendance recorded successfully!";
+                    //   } else {
+                    //     echo "Error!, No Thing Saved. ";
+                    //     echo "Error: " . mysqli_stmt_error($stmt); // Include error message for debugging
+                    //   }
+                    
+                    //   // Close statement (optional for some mysqli versions)
+                    //   mysqli_stmt_close($stmt);
+                
+                    
+                ?>
+
 
 
 
@@ -265,22 +307,19 @@ require_once 'config.php';
     <!-- Custom scripts for all pages-->
     <script src="js/sb-admin-2.min.js"></script>
 
-
     <script>
-        document.getElementById("presentButton").addEventListener("click", function() {
-            document.getElementById("presentButton").classList.add("clicked");
-            document.getElementById("absentButton").classList.remove("clicked");
-            document.getElementById("presentButton").value = 1; // Assuming 1 represents present
-            document.getElementById("absentButton").value = 0; // Assuming 0 represents absent
-        });
-
-        document.getElementById("absentButton").addEventListener("click", function() {
-            document.getElementById("absentButton").classList.add("clicked");
-            document.getElementById("presentButton").classList.remove("clicked");
-            document.getElementById("absentButton").value = 0; // Assuming 0 represents absent
-            document.getElementById("presentButton").value = 1; // Assuming 1 represents present
+        const attendanceForm = document.getElementById('attendanceForm');
+        attendanceForm.addEventListener('submit', (event) => {
+            const statusRadio = document.querySelector('input[name="status"]:checked');
+            if (!statusRadio) {
+                alert("Please select a student's attendance status (Present or Absent).");
+                event.preventDefault(); // Prevent form submission if no radio button is selected
+            }
         });
     </script>
+
+
+
 
 </body>
 
