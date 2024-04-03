@@ -30,6 +30,27 @@ require_once 'config.php';
             width: fit-content;
             pointer-events: none;
         }
+        button {
+        padding: 10px 20px;
+        cursor: pointer;
+        }
+
+        #presentButton {
+        background-color: green;
+        color: white;
+        border: none;
+        }
+
+        #absentButton {
+        background-color: red;
+        color: white;
+        border: none;
+        }
+
+        #absentButton.clicked {
+        background-color: darkred;
+        }
+
     </style>
 
 </head>
@@ -152,8 +173,10 @@ require_once 'config.php';
                                             <td> <input class="my_input" type="text" name="full_name" value="<?php echo $row['full_name'];?> "> </td>
                                             <td> <?php echo $row['class_name'];?> <input class="my_input" type="hidden" name="class_id" value="<?php echo $row['class_id'];?> ">  </td>
                                             <td>
-                                                <button class='btn btn-success'> P </button>
-                                                <button class='btn btn-danger'> A </button>
+                                                <input type="button" value="1" name="P" id="presentButton">
+                                                <input type="button" value="0" name="A" id="absentButton">
+                                                <!-- <button class='btn btn-success'> P </button>
+                                                <button class='btn btn-danger'> A </button> -->
                                             </td>
                                         </tr>
 
@@ -241,6 +264,23 @@ require_once 'config.php';
 
     <!-- Custom scripts for all pages-->
     <script src="js/sb-admin-2.min.js"></script>
+
+
+    <script>
+        document.getElementById("presentButton").addEventListener("click", function() {
+            document.getElementById("presentButton").classList.add("clicked");
+            document.getElementById("absentButton").classList.remove("clicked");
+            document.getElementById("presentButton").value = 1; // Assuming 1 represents present
+            document.getElementById("absentButton").value = 0; // Assuming 0 represents absent
+        });
+
+        document.getElementById("absentButton").addEventListener("click", function() {
+            document.getElementById("absentButton").classList.add("clicked");
+            document.getElementById("presentButton").classList.remove("clicked");
+            document.getElementById("absentButton").value = 0; // Assuming 0 represents absent
+            document.getElementById("presentButton").value = 1; // Assuming 1 represents present
+        });
+    </script>
 
 </body>
 
