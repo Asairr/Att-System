@@ -153,39 +153,39 @@ require_once 'config.php';
                                 <tbody id="attendance-body">
 
                                 <form method="post" id="attendanceForm">
-    <?php 
-    if (isset($_POST['select-attendance'])) {
-        $classSelected = $_POST['attendance-class'];
+                                    <?php 
+                                    if (isset($_POST['select-attendance'])) {
+                                        $classSelected = $_POST['attendance-class'];
 
-        $i=1;
-        $radio = 1;
+                                        $i=1;
+                                        $radio = 1;
 
-        $sql = "SELECT s.*, c.class_name FROM students s LEFT JOIN classes c ON s.class_id = c.id WHERE class_id = '$classSelected'";
-        $result = $conn->query($sql);
+                                        $sql = "SELECT s.*, c.class_name FROM students s LEFT JOIN classes c ON s.class_id = c.id WHERE class_id = '$classSelected'";
+                                        $result = $conn->query($sql);
 
-        if ($result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                $radio ++;
-    ?>
-    <tr>
-        <td><?php echo $row['id']; ?> <input type="hidden" name="stat_id[]" value="<?php echo $row['id']; ?>"> </td>
-        <td><?php echo $row['full_name']; ?> <input type="hidden" name="student_id[]" value="<?php echo $row['id']; ?>"> </td>
-        <td><?php echo $row['class_id']; ?> <input type="hidden" name="class_id[]" value="<?php echo $row['id']; ?>"> </td>
-        <td>
-            <label>Present</label>
-            <input type="radio" name="st_status[<?php echo $radio; ?>]" value="1">
-            <label>Absent </label>
-            <input type="radio" name="st_status[<?php echo $radio; ?>]" value="0">
-        </td>
-    </tr>
-    <?php 
-                
-            } // end of while loop
-        } // end of if ($result->num_rows > 0)
-    } // end of if (isset($_POST['select-attendance']))
-    ?>
-    <button type='submit' name="save"> Save </button>
-</form>
+                                        if ($result->num_rows > 0) {
+                                            while ($row = $result->fetch_assoc()) {
+                                                $radio ++;
+                                    ?>
+                                    <tr>
+                                        <td><?php echo $row['id']; ?> <input type="hidden" name="stat_id[]" value="<?php echo $row['id']; ?>"> </td>
+                                        <td><?php echo $row['full_name']; ?> <input type="hidden" name="student_id[]" value="<?php echo $row['id']; ?>"> </td>
+                                        <td><?php echo $row['class_id']; ?> <input type="hidden" name="class_id[]" value="<?php echo $row['id']; ?>"> </td>
+                                        <td>
+                                            <label>Present</label>
+                                            <input type="radio" name="st_status[<?php echo $radio; ?>]" value="1">
+                                            <label>Absent </label>
+                                            <input type="radio" name="st_status[<?php echo $radio; ?>]" value="0">
+                                        </td>
+                                    </tr>
+                                    <?php 
+                                                
+                                            } 
+                                        } 
+                                    } 
+                                    ?>
+                                    <button type='submit' name="save"> Save </button>
+                                </form>
 
 
                                 </tbody>
@@ -198,47 +198,23 @@ require_once 'config.php';
 
 
             <?php
-    if(isset($_POST['save'])){
-        // Assuming you have established a database connection before this point.
-        $student_id = $_POST["student_id"];
-        $class_id = $_POST["class_id"];
-        $status = $_POST["st_status"];
-
-        // foreach ($_POST["st_status"] as $i =>  $status) {
-
-        // // Using prepared statements to prevent SQL injection
-        // $stmt = $conn->prepare("INSERT INTO attendance (student_id, class_id, status) VALUES (?, ?, ?)");
-        // $stmt->bind_param("iis", $student_id, $class_id, $status[$i]);
-
-        //     echo $status;
-        // }
-
-
-        if (isset($_POST["st_status"])) {
-            // Prepare the SQL statement outside the loop
-            $stmt = $conn->prepare("INSERT INTO attendance (student_id, class_id, status) VALUES (?, ?, ?)");
-            $stmt->bind_param("iis", $student_id, $class_id, $status);
-        
-            // Iterate over each element in the 'st_status' array
-            foreach ($_POST["st_status"] as $i => $status) {
-                // Assuming $student_id and $class_id are defined somewhere
-        
-                // Bind new values for each iteration
-                $student_id = $_POST["student_id"];
-                $class_id = $_POST["class_id"];
-                $status_value = $status; // Assuming $status is the value from the form
-                
-                // Execute the prepared statement
-                $stmt->execute();
-            }
-        
-            // Close the prepared statement
-            $stmt->close();
-        }
-        
-
-    }
-?>
+                if(isset($_POST['save'])){
+                    $student_id = $_POST["student_id"];
+                    $class_id = $_POST["class_id"];
+                    $status = $_POST["st_status"];
+                    if (isset($_POST["st_status"])) {
+                        $stmt = $conn->prepare("INSERT INTO attendance (student_id, class_id, status) VALUES (?, ?, ?)");
+                        $stmt->bind_param("iis", $student_id, $class_id, $status);
+                        foreach ($_POST["st_status"] as $i => $status) {
+                            $student_id = $_POST["student_id"];
+                            $class_id = $_POST["class_id"];
+                            $status_value = $status;
+                            $stmt->execute();
+                        }
+                        $stmt->close();
+                    }
+                }
+            ?>
 
 
 
