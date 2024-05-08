@@ -13,7 +13,7 @@ require_once 'config.php';
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>SB Admin 2 - Blank</title>
+    <title> Attendance </title>
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -152,36 +152,41 @@ require_once 'config.php';
                                 </thead>
                                 <tbody id="attendance-body">
 
-                                    <form method="post" id="attendanceForm">
-                                        <button type='submit' name="save"> Save </button>
-                        <?php 
-                            if (isset($_POST['select-attendance'])) {
-                                $classSelected = $_POST['attendance-class'];
-                                $sql = "SELECT s.*, c.class_name FROM students s LEFT JOIN classes c ON s.class_id = c.id WHERE class_id = '$classSelected'";
-                                $result = $conn->query($sql);
+                                <form method="post" id="attendanceForm">
+    <?php 
+    if (isset($_POST['select-attendance'])) {
+        $classSelected = $_POST['attendance-class'];
 
-                                if ($result->num_rows > 0) {
-                                    while ($row = $result->fetch_assoc()) {
-                                        ?>
-                                           
+        $i=1;
+        $radio = 1;
 
-                                            <tr>
-                                                <td> <input class="my_input" type="text" name="student_id" value="<?php echo $row['id'];?> "> </td>
-                                                <td> <input class="my_input" type="text" name="full_name" value="<?php echo $row['full_name'];?> "> </td>
-                                                <td> <?php echo $row['class_name'];?> <input class="my_input" type="hidden" name="class_id" value="<?php echo $row['class_id'];?> ">  </td>
-                                                <td style='width: 30%'>
-                                                    <input type="radio" name="status" value="1" id="present"> Present
-                                                    <input type="radio" name="status" value="0" id="absent"> Absent
-                                                    <!-- <input type="checkbox" name="attendance"> -->
-                                                </td>
-                                            </tr>
-                                        </form>
+        $sql = "SELECT s.*, c.class_name FROM students s LEFT JOIN classes c ON s.class_id = c.id WHERE class_id = '$classSelected'";
+        $result = $conn->query($sql);
 
-                            <?php }
-                                } 
-                            }
-                            
-                        ?>
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $radio ++;
+    ?>
+    <tr>
+        <td><?php echo $row['id']; ?> <input type="hidden" name="stat_id[]" value="<?php echo $row['id']; ?>"> </td>
+        <td><?php echo $row['full_name']; ?> <input type="hidden" name="student_id[]" value="<?php echo $row['id']; ?>"> </td>
+        <td><?php echo $row['class_id']; ?> <input type="hidden" name="class_id[]" value="<?php echo $row['id']; ?>"> </td>
+        <td>
+            <label>Present</label>
+            <input type="radio" name="st_status[<?php echo $radio; ?>]" value="1">
+            <label>Absent </label>
+            <input type="radio" name="st_status[<?php echo $radio; ?>]" value="0">
+        </td>
+    </tr>
+    <?php 
+                
+            } // end of while loop
+        } // end of if ($result->num_rows > 0)
+    } // end of if (isset($_POST['select-attendance']))
+    ?>
+    <button type='submit' name="save"> Save </button>
+</form>
+
 
                                 </tbody>
                             </table>
@@ -193,60 +198,48 @@ require_once 'config.php';
 
 
             <?php
-                if(isset($_POST['save'])){
-                    $student_id = $_POST["student_id"];
-                    $class_id = $_POST["class_id"];
-                    $status = $_POST["status"];
-                    for ($i = 0; $i <= strlen($status) ; $i++) {
-                        $sql = "INSERT INTO attendance (student_id, class_id, status) VALUES ($student_id, $class_id, $status)";
-                        $res = mysqli_query($conn, $sql);
-                        if($res){
-                            echo "yessssssssssssss";
-                        } else {
-                            echo "NPOOOO";
-                        }
-                    }
-                }
+    if(isset($_POST['save'])){
+        // Assuming you have established a database connection before this point.
+        $student_id = $_POST["student_id"];
+        $class_id = $_POST["class_id"];
+        $status = $_POST["st_status"];
+
+        // foreach ($_POST["st_status"] as $i =>  $status) {
+
+        // // Using prepared statements to prevent SQL injection
+        // $stmt = $conn->prepare("INSERT INTO attendance (student_id, class_id, status) VALUES (?, ?, ?)");
+        // $stmt->bind_param("iis", $student_id, $class_id, $status[$i]);
+
+        //     echo $status;
+        // }
 
 
-                // if (isset($_POST['save'])) {
-                //     // Get attendance data as an array (assuming checkboxes are named like 'attendance[studentId]')
-                //     $studentAttendance = $_POST['attendance']; 
-                  
-                //     $class_id = $_POST['class_id'];
-                  
-                //     foreach ($studentAttendance as $studentId => $status) {
-                //       $sql = "INSERT INTO attendance (student_id, class_id, status) VALUES ($studentId, $class_id, $status)";
-                //       $res = mysqli_query($conn, $sql);
-                  
-                //       if ($res) {
-                //         echo "Attendance recorded successfully for student " . $studentId . "!";
-                //       } else {
-                //         echo "Error saving attendance for student " . $studentId . ": " . mysqli_error($conn);
-                //       }
-                //     }
-                //   }
-
-                  
-                  
-                    // $stmt = mysqli_prepare($conn, $sql);
-
-                    // // Bind parameters with data types (status is an integer)
-                    // $types = "iii"; // "i" for integer for all three variables
-                    // mysqli_stmt_bind_param($stmt, $types, $student_id, $class_id, $status);
-
-                    // if (mysqli_stmt_execute($stmt)) {
-                    //     echo "Attendance recorded successfully!";
-                    //   } else {
-                    //     echo "Error!, No Thing Saved. ";
-                    //     echo "Error: " . mysqli_stmt_error($stmt); // Include error message for debugging
-                    //   }
-                    
-                    //   // Close statement (optional for some mysqli versions)
-                    //   mysqli_stmt_close($stmt);
+        if (isset($_POST["st_status"])) {
+            // Prepare the SQL statement outside the loop
+            $stmt = $conn->prepare("INSERT INTO attendance (student_id, class_id, status) VALUES (?, ?, ?)");
+            $stmt->bind_param("iis", $student_id, $class_id, $status);
+        
+            // Iterate over each element in the 'st_status' array
+            foreach ($_POST["st_status"] as $i => $status) {
+                // Assuming $student_id and $class_id are defined somewhere
+        
+                // Bind new values for each iteration
+                $student_id = $_POST["student_id"];
+                $class_id = $_POST["class_id"];
+                $status_value = $status; // Assuming $status is the value from the form
                 
-                    
-                ?>
+                // Execute the prepared statement
+                $stmt->execute();
+            }
+        
+            // Close the prepared statement
+            $stmt->close();
+        }
+        
+
+    }
+?>
+
 
 
 
@@ -311,10 +304,10 @@ require_once 'config.php';
         const attendanceForm = document.getElementById('attendanceForm');
         attendanceForm.addEventListener('submit', (event) => {
             const statusRadio = document.querySelector('input[name="status"]:checked');
-            if (!statusRadio) {
-                alert("Please select a student's attendance status (Present or Absent).");
-                event.preventDefault(); // Prevent form submission if no radio button is selected
-            }
+            // if (!statusRadio) {
+            //     alert("Please select a student's attendance status (Present or Absent).");
+            //     event.preventDefault(); // Prevent form submission if no radio button is selected
+            // }
         });
     </script>
 
